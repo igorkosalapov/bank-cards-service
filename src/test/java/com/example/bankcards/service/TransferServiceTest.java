@@ -60,7 +60,7 @@ class TransferServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(owner));
 
         doAnswer(inv -> {
-            var t = inv.getArgument(0, Transfer.class);
+            var t = inv.getArgument(0, com.example.bankcards.entity.Transfer.class);
             t.setId(42L);
             return t;
         }).when(transferRepository).save(any());
@@ -89,7 +89,7 @@ class TransferServiceTest {
         assertEquals(new BigDecimal("74.50"), from.getBalance());
         assertEquals(new BigDecimal("35.50"), to.getBalance());
 
-        ArgumentCaptor<Transfer> captor = ArgumentCaptor.forClass(Transfer.class);
+        ArgumentCaptor<com.example.bankcards.entity.Transfer> captor = ArgumentCaptor.forClass(com.example.bankcards.entity.Transfer.class);
         verify(transferRepository).save(captor.capture());
         assertEquals(from, captor.getValue().getFromCard());
         assertEquals(to, captor.getValue().getToCard());
