@@ -22,9 +22,6 @@ public final class CardSpecifications {
         return (root, query, cb) -> cb.equal(root.get("blockRequested"), blockRequested);
     }
 
-    /**
-     * Simple search by last4 or cardholderName.
-     */
     public static Specification<Card> search(String text) {
         return (root, query, cb) -> {
             String like = "%" + text.toLowerCase() + "%";
