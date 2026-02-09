@@ -6,6 +6,7 @@ import com.example.bankcards.entity.User;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
+
 import jakarta.persistence.criteria.Path;
 
 public final class CardSpecifications {
@@ -19,8 +20,6 @@ public final class CardSpecifications {
 
     public static Specification<Card> statusIs(CardStatus status) {
         return (root, query, cb) -> {
-            // Статус "EXPIRED" определяется не только полем status, но и датой окончания.
-            // Это позволяет фильтровать корректно, даже если статус в БД ещё не обновлялся.
             Path<LocalDate> exp = root.get("expirationDate");
             Path<CardStatus> st = root.get("status");
             LocalDate today = LocalDate.now();
@@ -32,7 +31,6 @@ public final class CardSpecifications {
                 );
             }
 
-            // ACTIVE/BLOCKED: исключаем истёкшие по дате карты
             return cb.and(
                     cb.equal(st, status),
                     cb.greaterThanOrEqualTo(exp, today)

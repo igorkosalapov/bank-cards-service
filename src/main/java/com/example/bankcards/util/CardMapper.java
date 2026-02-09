@@ -3,11 +3,10 @@ package com.example.bankcards.util;
 import com.example.bankcards.dto.CardResponse;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.CardStatus;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public final class CardMapper {
-
-    private CardMapper() {
-    }
 
     public static CardResponse toResponse(Card card, CardStatus effectiveStatus, boolean includeOwner) {
         CardResponse dto = new CardResponse();
@@ -23,9 +22,6 @@ public final class CardMapper {
         return dto;
     }
 
-    /**
-     * Совместимость: если эффективный статус не передали, используем статус из сущности.
-     */
     public static CardResponse toResponse(Card card, boolean includeOwner) {
         CardStatus st = card.getStatus() == null ? CardStatus.ACTIVE : card.getStatus();
         return toResponse(card, st, includeOwner);

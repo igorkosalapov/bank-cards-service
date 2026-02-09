@@ -1,6 +1,7 @@
 package com.example.bankcards.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -8,6 +9,11 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "transfers")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Transfer {
 
     @Id
@@ -30,66 +36,10 @@ public class Transfer {
     private User createdBy;
 
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt = Instant.now();
+    private Instant createdAt;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Card getFromCard() {
-        return fromCard;
-    }
-
-    public void setFromCard(Card fromCard) {
-        this.fromCard = fromCard;
-    }
-
-    public Card getToCard() {
-        return toCard;
-    }
-
-    public void setToCard(Card toCard) {
-        this.toCard = toCard;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public User getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(User createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Transfer transfer = (Transfer) o;
-        return Objects.equals(id, transfer.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    @PrePersist
+    void onCreate() {
+        this.createdAt = Instant.now();
     }
 }

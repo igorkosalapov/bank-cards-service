@@ -2,9 +2,15 @@ package com.example.bankcards.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TransferRequest {
     @NotNull
     private Long fromCardId;
@@ -15,28 +21,4 @@ public class TransferRequest {
     @NotNull
     @Positive
     private BigDecimal amount;
-
-    public Long getFromCardId() {
-        return fromCardId;
-    }
-
-    public void setFromCardId(Long fromCardId) {
-        this.fromCardId = fromCardId;
-    }
-
-    public Long getToCardId() {
-        return toCardId;
-    }
-
-    public void setToCardId(Long toCardId) {
-        this.toCardId = toCardId;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
 }

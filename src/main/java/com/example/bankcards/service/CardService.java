@@ -16,6 +16,7 @@ import com.example.bankcards.util.CardMapper;
 import com.example.bankcards.util.CardNumberUtil;
 import com.example.bankcards.util.CryptoUtil;
 import com.example.bankcards.util.ExpirationUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,17 +27,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Service
+@RequiredArgsConstructor
 public class CardService {
 
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
     private final CryptoUtil cryptoUtil;
-
-    public CardService(CardRepository cardRepository, UserRepository userRepository, CryptoUtil cryptoUtil) {
-        this.cardRepository = cardRepository;
-        this.userRepository = userRepository;
-        this.cryptoUtil = cryptoUtil;
-    }
 
     @Transactional
     public CardResponse create(CardCreateRequest req) {
@@ -63,7 +59,6 @@ public class CardService {
             throw new BadRequestException("expiration must be in format yyyy-MM or MM/YY");
         }
 
-        // Статус карты определяется сроком действия (если уже истекла — сразу EXPIRED)
         card.setStatus(isExpiredByDate(card) ? CardStatus.EXPIRED : CardStatus.ACTIVE);
 
         BigDecimal bal = req.getInitialBalance();

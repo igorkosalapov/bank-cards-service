@@ -14,6 +14,7 @@ import com.example.bankcards.repository.TransferRepository;
 import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.security.UserPrincipal;
 import com.example.bankcards.util.TransferMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,17 +22,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Service
+@RequiredArgsConstructor
 public class TransferService {
 
     private final CardRepository cardRepository;
     private final TransferRepository transferRepository;
     private final UserRepository userRepository;
-
-    public TransferService(CardRepository cardRepository, TransferRepository transferRepository, UserRepository userRepository) {
-        this.cardRepository = cardRepository;
-        this.transferRepository = transferRepository;
-        this.userRepository = userRepository;
-    }
 
     @Transactional
     public TransferResponse transferBetweenOwnCards(UserPrincipal principal, TransferRequest req) {

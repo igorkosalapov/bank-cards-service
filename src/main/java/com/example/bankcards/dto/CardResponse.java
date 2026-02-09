@@ -1,7 +1,14 @@
 package com.example.bankcards.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CardResponse {
     private Long id;
     private String maskedNumber;
@@ -10,61 +17,4 @@ public class CardResponse {
     private String expiration;
     private String status;
     private BigDecimal balance;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getMaskedNumber() {
-        return maskedNumber;
-    }
-
-    public void setMaskedNumber(String maskedNumber) {
-        this.maskedNumber = maskedNumber;
-    }
-
-    public String getOwnerUsername() {
-        return ownerUsername;
-    }
-
-    public void setOwnerUsername(String ownerUsername) {
-        this.ownerUsername = ownerUsername;
-    }
-
-    public String getCardholderName() {
-        return cardholderName;
-    }
-
-    public void setCardholderName(String cardholderName) {
-        this.cardholderName = cardholderName;
-    }
-
-    public String getExpiration() {
-        return expiration;
-    }
-
-    public void setExpiration(String expiration) {
-        this.expiration = expiration;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public BigDecimal getBalance() {
-        return balance;
-    }
-
-    public void setBalance(BigDecimal balance) {
-        this.balance = balance;
-    }
-
 }

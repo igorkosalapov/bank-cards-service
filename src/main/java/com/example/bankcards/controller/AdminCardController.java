@@ -5,6 +5,7 @@ import com.example.bankcards.dto.CardResponse;
 import com.example.bankcards.dto.CardStatusUpdateRequest;
 import com.example.bankcards.service.CardService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,13 +14,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/cards")
+@RequiredArgsConstructor
 public class AdminCardController {
 
     private final CardService cardService;
-
-    public AdminCardController(CardService cardService) {
-        this.cardService = cardService;
-    }
 
     @PostMapping
     public CardResponse create(@Valid @RequestBody CardCreateRequest req) {
