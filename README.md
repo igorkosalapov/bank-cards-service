@@ -51,11 +51,10 @@ docker compose up --build
 
 ### Аутентификация
 - `POST /api/auth/login` → JWT
-- `GET /api/auth/me` → текущий пользователь
 
 ### Карты (ADMIN)
 - `POST /api/admin/cards`
-- `GET /api/admin/cards` (фильтры: `search`, `status`, `blockRequested`, пагинация)
+- `GET /api/admin/cards` (фильтры: `search`, `status`, пагинация)
 - `GET /api/admin/cards/{id}`
 - `PATCH /api/admin/cards/{id}/status`
 - `DELETE /api/admin/cards/{id}`
@@ -67,12 +66,11 @@ docker compose up --build
 - `DELETE /api/admin/users/{id}`
 
 ### Карты (USER)
-- `GET /api/cards` (фильтры: `search`/`q`, `status`, `blockRequested`, пагинация)
+- `GET /api/cards` (фильтры: `search`/`q`, `status`, пагинация)
 - `GET /api/cards/{id}`
 - `GET /api/cards/{id}/balance`
 - `POST /api/cards/{id}/block-request`
 
 ### Переводы (USER)
 - `POST /api/transfers`
-- `GET /api/transfers` (пагинация)
 

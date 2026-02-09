@@ -1,9 +1,13 @@
 openapi: 3.0.3
 info:
-  title: Bank Cards Management API
+  title: Bank Cards REST API
   version: 1.0.0
   description: |
-    REST API for managing bank cards and transfers between own cards.
+    REST API для системы управления банковскими картами.
+
+    Требования по безопасности:
+    - Аутентификация: JWT Bearer
+    - Роли: ADMIN, USER
 
 servers:
   - url: http://localhost:8080
@@ -14,6 +18,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
   schemas:
     AuthRequest:
       type: object
@@ -25,6 +30,7 @@ components:
         password:
           type: string
           example: admin
+
     AuthResponse:
       type: object
       properties:
@@ -35,31 +41,34 @@ components:
           example: Bearer
         expiresInMinutes:
           type: integer
-          example: 60
-    MeResponse:
-      type: object
-      properties:
-        id:
-          type: integer
           format: int64
-        username:
-          type: string
-        role:
-          type: string
-          enum: [ADMIN, USER]
+          example: 60
+
     UserCreateRequest:
       type: object
       required: [username, password, fullName, role]
       properties:
         username:
           type: string
+          maxLength: 64
         password:
           type: string
+          minLength: 4
+          maxLength: 128
         fullName:
           type: string
         role:
           type: string
           enum: [ADMIN, USER]
+
+    UserRoleUpdateRequest:
+      type: object
+      required: [role]
+      properties:
+        role:
+          type: string
+          enum: [ADMIN, USER]
+
     UserResponse:
       type: object
       properties:
@@ -78,6 +87,7 @@ components:
         createdAt:
           type: string
           format: date-time
+
     CardCreateRequest:
       type: object
       required: [ownerId, cardNumber, expiration]
@@ -85,20 +95,24 @@ components:
         ownerId:
           type: integer
           format: int64
+          example: 2
         cardNumber:
           type: string
-          description: 16 digits
+          description: "16 цифр без пробелов"
           example: "4111111111111111"
         cardholderName:
           type: string
+          description: "Если не передано — будет взято fullName владельца"
+          example: "IVAN IVANOV"
         expiration:
           type: string
-          description: "yyyy-MM" or "MM/YY"
-          example: "2028-12"
+          description: "Формат: yyyy-MM или MM/YY"
+          example: "2027-02"
         initialBalance:
           type: number
           format: double
-          example: 1000.00
+          example: 100.00
+
     CardStatusUpdateRequest:
       type: object
       required: [status]
@@ -106,6 +120,7 @@ components:
         status:
           type: string
           enum: [ACTIVE, BLOCKED]
+
     CardResponse:
       type: object
       properties:
@@ -114,31 +129,32 @@ components:
           format: int64
         maskedNumber:
           type: string
+          description: "Маска номера карты: **** **** **** 1234"
           example: "**** **** **** 1234"
         ownerUsername:
           type: string
+          description: "Имя владельца (видно администратору)"
         cardholderName:
           type: string
+          description: "Владелец (имя на карте)"
         expiration:
           type: string
-          example: "12/28"
+          description: "MM/YY"
+          example: "02/27"
         status:
           type: string
           enum: [ACTIVE, BLOCKED, EXPIRED]
         balance:
           type: number
           format: double
-        blockRequested:
-          type: boolean
-        createdAt:
-          type: string
-          format: date-time
+
     BalanceResponse:
       type: object
       properties:
         balance:
           type: number
           format: double
+
     TransferRequest:
       type: object
       required: [fromCardId, toCardId, amount]
@@ -153,6 +169,7 @@ components:
           type: number
           format: double
           example: 10.00
+
     TransferResponse:
       type: object
       properties:
@@ -171,6 +188,7 @@ components:
         createdAt:
           type: string
           format: date-time
+
     ErrorResponse:
       type: object
       properties:
@@ -229,21 +247,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/auth/me:
-    get:
-      summary: Current authenticated user
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MeResponse'
-
   /api/admin/users:
     get:
       summary: List users (ADMIN)
       tags: [Admin]
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
       responses:
         '200':
           description: OK
@@ -284,11 +309,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                role:
-                  type: string
-                  enum: [ADMIN, USER]
+              $ref: '#/components/schemas/UserRoleUpdateRequest'
       responses:
         '200':
           description: OK
@@ -317,19 +338,34 @@ paths:
       summary: List all cards (ADMIN)
       tags: [Admin]
       parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
         - name: status
           in: query
+          required: false
           schema:
             type: string
             enum: [ACTIVE, BLOCKED, EXPIRED]
-        - name: blockRequested
+        - name: page
           in: query
+          required: false
           schema:
-            type: boolean
-        - name: search
+            type: integer
+            default: 0
+        - name: size
           in: query
+          required: false
           schema:
-            type: string
+            type: integer
+            default: 20
       responses:
         '200':
           description: OK
@@ -416,19 +452,34 @@ paths:
       summary: List my cards (USER)
       tags: [User]
       parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
         - name: status
           in: query
+          required: false
           schema:
             type: string
             enum: [ACTIVE, BLOCKED, EXPIRED]
-        - name: blockRequested
+        - name: page
           in: query
+          required: false
           schema:
-            type: boolean
-        - name: search
+            type: integer
+            default: 0
+        - name: size
           in: query
+          required: false
           schema:
-            type: string
+            type: integer
+            default: 20
       responses:
         '200':
           description: OK
@@ -511,13 +562,3 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TransferResponse'
-    get:
-      summary: List my transfers (USER)
-      tags: [User]
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
