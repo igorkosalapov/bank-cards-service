@@ -22,13 +22,4 @@ public class TransferController {
     public TransferResponse create(@AuthenticationPrincipal UserPrincipal principal, @Valid @RequestBody TransferRequest req) {
         return transferService.transferBetweenOwnCards(principal, req);
     }
-
-    @GetMapping
-    public org.springframework.data.domain.Page<TransferResponse> list(
-            @AuthenticationPrincipal UserPrincipal principal,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size
-    ) {
-        return transferService.listMyTransfers(principal, page, size);
-    }
 }

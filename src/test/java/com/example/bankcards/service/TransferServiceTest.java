@@ -4,7 +4,6 @@ import com.example.bankcards.dto.TransferRequest;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.entity.Role;
-import com.example.bankcards.entity.Transfer;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.BadRequestException;
 import com.example.bankcards.exception.ForbiddenException;
@@ -16,14 +15,9 @@ import com.example.bankcards.security.UserPrincipal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -246,32 +240,6 @@ class TransferServiceTest {
 
         assertThrows(NotFoundException.class, () -> transferService.transferBetweenOwnCards(principal, req));
         verify(transferRepository, never()).save(any());
-    }
-
-    @Test
-    void listMyTransfers_returnsPage() {
-        Card from = card(10L, owner, CardStatus.ACTIVE, BigDecimal.valueOf(100.00), LocalDate.now().plusMonths(2));
-        Card to = card(20L, owner, CardStatus.ACTIVE, BigDecimal.valueOf(10.00), LocalDate.now().plusMonths(3));
-
-        Transfer t = new Transfer();
-        t.setId(7L);
-        t.setFromCard(from);
-        t.setToCard(to);
-        t.setAmount(new BigDecimal("12.34"));
-        t.setCreatedBy(owner);
-        t.setCreatedAt(Instant.parse("2026-01-01T10:15:30Z"));
-
-        when(transferRepository.findByCreatedBy(eq(owner), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(t)));
-
-        Page<?> page = transferService.listMyTransfers(principal, 0, 20);
-        assertEquals(1, page.getTotalElements());
-        var dto = (com.example.bankcards.dto.TransferResponse) page.getContent().get(0);
-        assertEquals(7L, dto.getId());
-        assertEquals(10L, dto.getFromCardId());
-        assertEquals(20L, dto.getToCardId());
-        assertEquals(new BigDecimal("12.34"), dto.getAmount());
-        assertEquals(Instant.parse("2026-01-01T10:15:30Z"), dto.getCreatedAt());
     }
 
     private static Card card(Long id, User owner, CardStatus status, BigDecimal balance, LocalDate exp) {

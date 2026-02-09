@@ -16,10 +16,6 @@ import com.example.bankcards.security.UserPrincipal;
 import com.example.bankcards.util.TransferMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -84,20 +80,6 @@ public class TransferService {
 
         transferRepository.save(t);
         return TransferMapper.toResponse(t);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<TransferResponse> listMyTransfers(UserPrincipal principal, int page, int size) {
-        User user = userRepository.findById(principal.getId())
-                .orElseThrow(() -> new NotFoundException("User not found"));
-
-        Pageable pageable = PageRequest.of(
-                Math.max(page, 0),
-                Math.min(Math.max(size, 1), 100),
-                Sort.by(Sort.Direction.DESC, "createdAt")
-        );
-        return transferRepository.findByCreatedBy(user, pageable)
-                .map(TransferMapper::toResponse);
     }
 
     private void ensureActive(Card card) {

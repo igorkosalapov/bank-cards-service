@@ -31,7 +31,6 @@ public class AdminCardController {
             @RequestParam(name = "search", required = false) String search,
             @RequestParam(name = "q", required = false) String q,
             @RequestParam(name = "status", required = false) String status,
-            @RequestParam(name = "blockRequested", required = false) Boolean blockRequested,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size
     ) {
@@ -41,7 +40,7 @@ public class AdminCardController {
                 Sort.by(Sort.Direction.DESC, "createdAt")
         );
         String query = (search != null && !search.isBlank()) ? search : q;
-        return cardService.listAll(query, status, blockRequested, pageable);
+        return cardService.listAll(query, status, pageable);
     }
 
     @GetMapping("/{id}")
