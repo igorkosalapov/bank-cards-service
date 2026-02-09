@@ -18,6 +18,10 @@ public class CardCreateRequest {
     private String cardholderName;
 
     @NotBlank
+    @Pattern(
+            regexp = "^(\\d{4}-(0[1-9]|1[0-2])|(0[1-9]|1[0-2])/\\d{2})$",
+            message = "expiration must be in format yyyy-MM or MM/YY"
+    )
     private String expiration;
 
     private BigDecimal initialBalance;

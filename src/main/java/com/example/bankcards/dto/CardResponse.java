@@ -1,7 +1,6 @@
 package com.example.bankcards.dto;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 
 public class CardResponse {
     private Long id;
@@ -11,8 +10,6 @@ public class CardResponse {
     private String expiration;
     private String status;
     private BigDecimal balance;
-    private boolean blockRequested;
-    private Instant createdAt;
 
     public Long getId() {
         return id;
@@ -70,19 +67,4 @@ public class CardResponse {
         this.balance = balance;
     }
 
-    public boolean isBlockRequested() {
-        return blockRequested;
-    }
-
-    public void setBlockRequested(boolean blockRequested) {
-        this.blockRequested = blockRequested;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
 }
