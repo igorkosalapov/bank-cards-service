@@ -38,9 +38,6 @@ public class Card {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal balance = BigDecimal.ZERO;
 
-    @Column(name = "block_requested", nullable = false)
-    private boolean blockRequested = false;
-
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
@@ -106,14 +103,6 @@ public class Card {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
-    }
-
-    public boolean isBlockRequested() {
-        return blockRequested;
-    }
-
-    public void setBlockRequested(boolean blockRequested) {
-        this.blockRequested = blockRequested;
     }
 
     public Instant getCreatedAt() {

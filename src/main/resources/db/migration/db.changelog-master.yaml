@@ -102,12 +102,6 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: block_requested
-                  type: BOOLEAN
-                  defaultValueBoolean: false
-                  constraints:
-                    nullable: false
-              - column:
                   name: created_at
                   type: TIMESTAMP WITH TIME ZONE
                   defaultValueComputed: CURRENT_TIMESTAMP

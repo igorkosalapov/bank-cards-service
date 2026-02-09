@@ -57,8 +57,14 @@ public class CardService {
         }
         card.setCardholderName(holder);
 
-        card.setExpirationDate(ExpirationUtil.parseToLastDayOfMonth(req.getExpiration()));
-        card.setStatus(CardStatus.ACTIVE);
+        try {
+            card.setExpirationDate(ExpirationUtil.parseToLastDayOfMonth(req.getExpiration()));
+        } catch (IllegalArgumentException ex) {
+            throw new BadRequestException("expiration must be in format yyyy-MM or MM/YY");
+        }
+
+        // Статус карты определяется сроком действия (если уже истекла — сразу EXPIRED)
+        card.setStatus(isExpiredByDate(card) ? CardStatus.EXPIRED : CardStatus.ACTIVE);
 
         BigDecimal bal = req.getInitialBalance();
         if (bal != null) {
@@ -75,7 +81,7 @@ public class CardService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CardResponse> listAll(String q, String statusRaw, Boolean blockRequested, Pageable pageable) {
+    public Page<CardResponse> listAll(String q, String statusRaw, Pageable pageable) {
         Specification<Card> spec = Specification.where(null);
 
         if (q != null && !q.isBlank()) {
@@ -85,24 +91,13 @@ public class CardService {
             spec = spec.and(CardSpecifications.statusIs(parseStatus(statusRaw)));
         }
 
-        if (blockRequested != null) {
-            spec = spec.and(CardSpecifications.blockRequestedIs(blockRequested));
-        }
-
         Page<Card> page = cardRepository.findAll(spec, pageable);
 
-        return page.map(c -> {
-            CardStatus effective = effectiveStatus(c);
-            if (effective != c.getStatus()) {
-
-                c.setStatus(effective);
-            }
-            return CardMapper.toResponse(c, true);
-        });
+        return page.map(c -> CardMapper.toResponse(c, effectiveStatus(c), true));
     }
 
     @Transactional(readOnly = true)
-    public Page<CardResponse> listMine(User owner, String q, String statusRaw, Boolean blockRequested, Pageable pageable) {
+    public Page<CardResponse> listMine(User owner, String q, String statusRaw, Pageable pageable) {
         Specification<Card> spec = Specification.where(CardSpecifications.ownerIs(owner));
 
         if (q != null && !q.isBlank()) {
@@ -111,25 +106,15 @@ public class CardService {
         if (statusRaw != null && !statusRaw.isBlank()) {
             spec = spec.and(CardSpecifications.statusIs(parseStatus(statusRaw)));
         }
-        if (blockRequested != null) {
-            spec = spec.and(CardSpecifications.blockRequestedIs(blockRequested));
-        }
 
         Page<Card> page = cardRepository.findAll(spec, pageable);
-        return page.map(c -> {
-            CardStatus effective = effectiveStatus(c);
-            if (effective != c.getStatus()) {
-                c.setStatus(effective);
-            }
-            return CardMapper.toResponse(c, false);
-        });
+        return page.map(c -> CardMapper.toResponse(c, effectiveStatus(c), false));
     }
 
     @Transactional(readOnly = true)
     public Card getMineEntity(Long cardId, User owner) {
         Card card = cardRepository.findByIdAndOwner(cardId, owner)
                 .orElseThrow(() -> new NotFoundException("Card not found"));
-        card.setStatus(effectiveStatus(card));
         return card;
     }
 
@@ -146,14 +131,16 @@ public class CardService {
         if (effectiveStatus(card) == CardStatus.EXPIRED) {
             throw new BadRequestException("Card is expired");
         }
-        card.setBlockRequested(true);
-        return CardMapper.toResponse(card, false);
+        // "Запрос блокировки" в рамках ТЗ реализуем как блокировку карты пользователем.
+        // Отдельные флаги/статусы "requested" не добавляем.
+        card.setStatus(CardStatus.BLOCKED);
+        return CardMapper.toResponse(card, effectiveStatus(card), false);
     }
 
     @Transactional(readOnly = true)
     public CardResponse getMineResponse(Long cardId, User owner) {
         Card card = getMineEntity(cardId, owner);
-        return CardMapper.toResponse(card, false);
+        return CardMapper.toResponse(card, effectiveStatus(card), false);
     }
 
     @Transactional
@@ -168,17 +155,12 @@ public class CardService {
 
         if (isExpiredByDate(card)) {
             card.setStatus(CardStatus.EXPIRED);
-            card.setBlockRequested(false);
-            return CardMapper.toResponse(card, true);
+            return CardMapper.toResponse(card, CardStatus.EXPIRED, true);
         }
 
         card.setStatus(newStatus);
-        if (newStatus == CardStatus.ACTIVE) {
 
-            card.setBlockRequested(false);
-        }
-
-        return CardMapper.toResponse(card, true);
+        return CardMapper.toResponse(card, effectiveStatus(card), true);
     }
 
     @Transactional
@@ -193,11 +175,7 @@ public class CardService {
     public CardResponse getByIdAdmin(Long cardId) {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new NotFoundException("Card not found"));
-        CardStatus effective = effectiveStatus(card);
-        if (effective != card.getStatus()) {
-            card.setStatus(effective);
-        }
-        return CardMapper.toResponse(card, true);
+        return CardMapper.toResponse(card, effectiveStatus(card), true);
     }
 
     private CardStatus parseStatus(String raw) {

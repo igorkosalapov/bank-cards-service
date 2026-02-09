@@ -2,13 +2,14 @@ package com.example.bankcards.util;
 
 import com.example.bankcards.dto.CardResponse;
 import com.example.bankcards.entity.Card;
+import com.example.bankcards.entity.CardStatus;
 
 public final class CardMapper {
 
     private CardMapper() {
     }
 
-    public static CardResponse toResponse(Card card, boolean includeOwner) {
+    public static CardResponse toResponse(Card card, CardStatus effectiveStatus, boolean includeOwner) {
         CardResponse dto = new CardResponse();
         dto.setId(card.getId());
         dto.setMaskedNumber(CardNumberUtil.maskByLast4(card.getLast4()));
@@ -17,10 +18,16 @@ public final class CardMapper {
         }
         dto.setCardholderName(card.getCardholderName());
         dto.setExpiration(ExpirationUtil.formatToMmYy(card.getExpirationDate()));
-        dto.setStatus(card.getStatus().name());
+        dto.setStatus(effectiveStatus.name());
         dto.setBalance(card.getBalance());
-        dto.setBlockRequested(card.isBlockRequested());
-        dto.setCreatedAt(card.getCreatedAt());
         return dto;
+    }
+
+    /**
+     * Совместимость: если эффективный статус не передали, используем статус из сущности.
+     */
+    public static CardResponse toResponse(Card card, boolean includeOwner) {
+        CardStatus st = card.getStatus() == null ? CardStatus.ACTIVE : card.getStatus();
+        return toResponse(card, st, includeOwner);
     }
 }

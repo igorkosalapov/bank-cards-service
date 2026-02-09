@@ -76,7 +76,6 @@ class CardServiceTest {
         assertEquals("02/27", resp.getExpiration());
         assertEquals("ACTIVE", resp.getStatus());
         assertEquals(new BigDecimal("12.34"), resp.getBalance());
-        assertFalse(resp.isBlockRequested());
         assertEquals("user", resp.getOwnerUsername());
 
         ArgumentCaptor<Card> captor = ArgumentCaptor.forClass(Card.class);
@@ -125,8 +124,8 @@ class CardServiceTest {
 
         var resp = cardService.requestBlock(10L, owner);
 
-        assertTrue(resp.isBlockRequested());
-        assertTrue(card.isBlockRequested());
+        assertEquals("BLOCKED", resp.getStatus());
+        assertEquals(CardStatus.BLOCKED, card.getStatus());
     }
 
     @Test
@@ -145,29 +144,23 @@ class CardServiceTest {
     @Test
     void updateStatus_forcesExpired_whenExpiredByDate() {
         Card card = card(10L, owner, CardStatus.ACTIVE, LocalDate.now().minusDays(1));
-        card.setBlockRequested(true);
         when(cardRepository.findById(10L)).thenReturn(Optional.of(card));
 
         var resp = cardService.updateStatus(10L, "ACTIVE");
 
         assertEquals("EXPIRED", resp.getStatus());
-        assertFalse(resp.isBlockRequested());
         assertEquals(CardStatus.EXPIRED, card.getStatus());
-        assertFalse(card.isBlockRequested());
     }
 
     @Test
-    void updateStatus_clearsBlockRequested_onActivate() {
+    void updateStatus_onActivate_setsActive() {
         Card card = card(10L, owner, CardStatus.BLOCKED, LocalDate.now().plusMonths(2));
-        card.setBlockRequested(true);
         when(cardRepository.findById(10L)).thenReturn(Optional.of(card));
 
         var resp = cardService.updateStatus(10L, "ACTIVE");
 
         assertEquals("ACTIVE", resp.getStatus());
-        assertFalse(resp.isBlockRequested());
         assertEquals(CardStatus.ACTIVE, card.getStatus());
-        assertFalse(card.isBlockRequested());
     }
 
     private static Card card(Long id, User owner, CardStatus status, LocalDate exp) {
