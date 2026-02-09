@@ -126,8 +126,6 @@ public class CardService {
         if (effectiveStatus(card) == CardStatus.EXPIRED) {
             throw new BadRequestException("Card is expired");
         }
-        // "Запрос блокировки" в рамках ТЗ реализуем как блокировку карты пользователем.
-        // Отдельные флаги/статусы "requested" не добавляем.
         card.setStatus(CardStatus.BLOCKED);
         return CardMapper.toResponse(card, effectiveStatus(card), false);
     }

@@ -56,7 +56,6 @@ class ApiSecurityAndValidationTest {
     @MockBean
     private TransferService transferService;
 
-    // required by SecurityConfig / JwtAuthenticationFilter
     @MockBean
     private JwtService jwtService;
 
