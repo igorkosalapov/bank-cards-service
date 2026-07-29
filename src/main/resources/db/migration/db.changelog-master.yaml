@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 001-create-users
-      author: chatgpt
+      author: igorkosalapov
       changes:
         - createTable:
             tableName: users
@@ -54,7 +54,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 002-create-cards
-      author: chatgpt
+      author: igorkosalapov
       changes:
         - createTable:
             tableName: cards
@@ -129,7 +129,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 003-create-transfers
-      author: chatgpt
+      author: igorkosalapov
       changes:
         - createTable:
             tableName: transfers
@@ -196,7 +196,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 004-seed-users
-      author: chatgpt
+      author: igorkosalapov
       changes:
         - insert:
             tableName: users

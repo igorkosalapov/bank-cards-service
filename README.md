@@ -12,9 +12,39 @@
 ## Быстрый запуск (Docker Compose)
 > Требуется Docker + Docker Compose.
 
+### Настройка переменных окружения
+
+Создайте локальный файл `.env` из шаблона:
+
+```bash
+cp .env.example .env
+```
+
+Для Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Сгенерируйте два независимых Base64-ключа:
+
+```bash
+openssl rand -base64 32
+openssl rand -base64 32
+```
+
+Добавьте первое значение как `JWT_SECRET`, второе — как
+`AES_KEY_BASE64` в файл `.env`.
+
+> Файл `.env` содержит локальные секреты и исключён из Git.
+> В репозитории хранится только безопасный шаблон `.env.example`.
+
+### Запуск приложения
+
 ```bash
 docker compose up --build
 ```
+
 
 После старта:
 - API: `http://localhost:8080`
@@ -27,11 +57,12 @@ docker compose up --build
 - user/pass: `bankcards / bankcards`
 
 ## Переменные окружения
-Можно переопределять через environment (см. `docker-compose.yml`):
 
-- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
-- `JWT_SECRET` — секрет для подписи JWT (Base64 или обычная строка)
-- `AES_KEY_BASE64` — AES-ключ для шифрования номера карты (Base64, 32 байта)
+- `JWT_SECRET` — обязательный секрет для подписи JWT;
+- `AES_KEY_BASE64` — обязательный 256-битный AES-ключ в формате Base64;
+- `JWT_EXP_MIN` — время жизни JWT в минутах, по умолчанию `60`;
+- `JWT_ISSUER` — издатель JWT, по умолчанию `bankcards-api`;
+- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` — параметры подключения к PostgreSQL.
 
 ## Тестовые учетные записи (создаются Liquibase)
 - **ADMIN**: `admin / admin`
