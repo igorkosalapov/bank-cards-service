@@ -11,7 +11,7 @@
 
 ## Быстрый запуск (Docker Compose)
 
-> Требуется Docker + Docker Compose.
+Требуется Docker + Docker Compose.
 
 ### Настройка переменных окружения
 
