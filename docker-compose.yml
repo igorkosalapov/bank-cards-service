@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:16-alpine
@@ -22,8 +20,13 @@ services:
       DB_NAME: bankcards
       DB_USER: bankcards
       DB_PASSWORD: bankcards
-      JWT_SECRET: wfzPgX12oS7mJnLAVGWMGI0YUA19az1CJhyvC75kpSk=
-      AES_KEY_BASE64: SaLJ1e0y3eVXEBXxAeEQo6PGqxDCkBWy6veFf1s7SsI=
+
+      JWT_SECRET: "${JWT_SECRET:?JWT_SECRET is required}"
+      AES_KEY_BASE64: "${AES_KEY_BASE64:?AES_KEY_BASE64 is required}"
+
+      JWT_EXP_MIN: "${JWT_EXP_MIN:-60}"
+      JWT_ISSUER: "${JWT_ISSUER:-bankcards-api}"
+
     ports:
       - "8080:8080"
     depends_on:

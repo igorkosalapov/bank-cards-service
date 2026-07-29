@@ -17,12 +17,12 @@ spring:
     change-log: classpath:db/migration/db.changelog-master.yaml
 
 jwt:
-  secret: ${JWT_SECRET:wfzPgX12oS7mJnLAVGWMGI0YUA19az1CJhyvC75kpSk=}
+  secret: ${JWT_SECRET}
   expiration-minutes: ${JWT_EXP_MIN:60}
   issuer: ${JWT_ISSUER:bankcards-api}
 
 crypto:
-  aes-key-base64: ${AES_KEY_BASE64:SaLJ1e0y3eVXEBXxAeEQo6PGqxDCkBWy6veFf1s7SsI=}
+  aes-key-base64: ${AES_KEY_BASE64}
 
 springdoc:
   swagger-ui:
