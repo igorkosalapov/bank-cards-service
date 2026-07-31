@@ -48,7 +48,7 @@ docker compose up --build
 
 
 После старта:
-- API: `http://localhost:8080`
+- API: `http://localhost:8080`ёё
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 
 База по умолчанию:

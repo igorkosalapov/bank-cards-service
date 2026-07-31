@@ -24,6 +24,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Map;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -157,5 +159,42 @@ class ApiSecurityAndValidationTest {
                 .andExpect(jsonPath("$.message").value("Validation failed"));
 
         verify(cardService, never()).create(any());
+    }
+
+    @Test
+    void unexpectedError_returns500_withoutInternalDetails() throws Exception {
+        UserPrincipal principal = new UserPrincipal(
+                1L,
+                "user",
+                "hash",
+                Role.USER.name(),
+                true
+        );
+
+        User owner = new User();
+        owner.setId(1L);
+        owner.setUsername("user");
+
+        when(userService.getEntity(1L)).thenReturn(owner);
+        when(cardService.getMineResponse(eq(999L), eq(owner)))
+                .thenThrow(new IllegalStateException(
+                        "Sensitive database details"
+                ));
+
+        mockMvc.perform(get("/api/cards/999").with(user(principal)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().contentTypeCompatibleWith(
+                        MediaType.APPLICATION_JSON
+                ))
+                .andExpect(jsonPath("$.status").value(500))
+                .andExpect(jsonPath("$.error")
+                        .value("Internal Server Error"))
+                .andExpect(jsonPath("$.message")
+                        .value("Unexpected server error"))
+                .andExpect(jsonPath("$.path")
+                        .value("/api/cards/999"))
+                .andExpect(content().string(not(containsString(
+                        "Sensitive database details"
+                ))));
     }
 }
