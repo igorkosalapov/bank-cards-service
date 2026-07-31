@@ -1,5 +1,7 @@
 # 🚀 Система управления банковскими картами
 
+[![CI](https://github.com/igorkosalapov/bank-cards-service/actions/workflows/ci.yml/badge.svg)](https://github.com/igorkosalapov/bank-cards-service/actions/workflows/ci.yml)
+
 ## Стек
 - Java 17, Spring Boot
 - Spring Security + JWT (роли: **ADMIN**, **USER**)
